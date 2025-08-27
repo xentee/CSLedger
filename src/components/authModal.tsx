@@ -157,6 +157,7 @@ export default function Modal({
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3 }}
                         className="space-y-4"
+                        onSubmit={handleSignIn}
                       >
                         <input
                           type="email"
