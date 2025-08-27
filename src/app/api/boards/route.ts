@@ -24,6 +24,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
   const supabase = createSupabaseServerClient(request)
+  // Quota free = 3 boards
+  const { data: existing, error: countErr } = await supabase.from('boards').select('id', { count: 'exact', head: true })
+  if (countErr) return NextResponse.json({ error: countErr.message }, { status: 400 })
+  // Supabase renvoie le count via response, mais le SDK .select with head: true ne donne pas directement count ici.
+  // Workaround: faire un select count(*)
+  const { data: countRows, error: cntE } = await supabase.rpc('sql', { q: `select count(*)::int as c from boards` } as any).single()
+  if (cntE) return NextResponse.json({ error: cntE.message }, { status: 400 })
+  const count = countRows?.c ?? 0
+  if (count >= 3) return NextResponse.json({ error: 'Quota atteint (free: 3 boards)' }, { status: 403 })
   const { data, error } = await supabase
     .from('boards')
     .insert([{ name: parsed.data.name, settings: parsed.data.settings ?? {} }])
