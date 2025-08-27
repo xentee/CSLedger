@@ -148,11 +148,15 @@ export default function Modal({
                         <input
                           type="email"
                           placeholder="Email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           className="w-full px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border border-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                         <input
                           type="password"
                           placeholder="Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           className="w-full px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border border-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                         <input
