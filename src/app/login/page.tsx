@@ -9,7 +9,6 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    // Si déjà authentifié, rediriger vers /dashboard
     const token = typeof window !== 'undefined' ? localStorage.getItem('sb_access_token') : null
     if (token) {
       window.location.href = '/dashboard'
