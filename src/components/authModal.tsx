@@ -121,12 +121,20 @@ export default function Modal({
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3 }}
                         className="space-y-4"
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const supabase = getSupabaseClient();
+                          const { data, error } = await supabase.auth.signUp({ email, password });
+                          if (error) {
+                            setErrorMessage(error.message);
+                          } else {
+                            const token = data.session?.access_token;
+                            if (token) localStorage.setItem('sb_access_token', token);
+                            handleClose();
+                          }
+                        }}
                       >
-                        <input
-                          type="text"
-                          placeholder="Username"
-                          className="w-full px-4 py-3 rounded-lg bg-gray-900 text-gray-100 border border-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                        {/* Username retiré (facultatif) */}
                         <input
                           type="email"
                           placeholder="Email"

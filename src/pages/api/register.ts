@@ -1,9 +1,10 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabaseClient } from '@/lib/supabaseClient'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { email, password, username } = req.body
+  const { email, password } = req.body
+  const supabase = getSupabaseClient()
 
   const { data: authData, error: signUpError } = await supabase.auth.signUp({
     email,
@@ -12,14 +13,9 @@ export default async function handler(req, res) {
 
   if (signUpError) return res.status(400).json({ error: signUpError.message })
 
-  const userId = authData.user?.id
-  if (!userId) return res.status(500).json({ error: 'User ID not returned' })
+  const access_token = authData.session?.access_token
+  const user = authData.user
+  if (!access_token || !user) return res.status(200).json({ message: 'Inscription réussie ! Confirme l’email si requis.' })
 
-  const { error: insertError } = await supabase.from('users').insert([
-    { id: userId, username }
-  ])
-
-  if (insertError) return res.status(500).json({ error: insertError.message })
-
-  res.status(200).json({ message: 'Inscription réussie !' })
+  return res.status(200).json({ message: 'Inscription réussie !', access_token, user: { id: user.id, email: user.email } })
 }
