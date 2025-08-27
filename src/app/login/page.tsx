@@ -1,13 +1,24 @@
+
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    // Si déjà authentifié, rediriger vers /dashboard
+    const token = typeof window !== 'undefined' ? localStorage.getItem('sb_access_token') : null
+    if (token) {
+      window.location.href = '/dashboard'
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitting(true)
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -16,6 +27,11 @@ export default function LoginPage() {
 
     const data = await res.json()
     setMessage(data.message || data.error)
+    if (res.ok && data.access_token) {
+      localStorage.setItem('sb_access_token', data.access_token)
+      window.location.href = '/dashboard'
+    }
+    setSubmitting(false)
   }
 
   return (
@@ -40,9 +56,10 @@ export default function LoginPage() {
         />
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          disabled={submitting}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
         >
-          Se connecter
+          {submitting ? 'Connexion…' : 'Se connecter'}
         </button>
         {message && <p className="text-center text-sm text-gray-700">{message}</p>}
       </form>

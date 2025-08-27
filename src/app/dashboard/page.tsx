@@ -8,10 +8,16 @@ type DashboardResponse = {
 }
 
 export default function DashboardPage() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('sb_access_token') : null
   const { data, isLoading, isError } = useQuery<DashboardResponse>({
     queryKey: ['dashboard'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard', { headers: { 'content-type': 'application/json' } })
+      const res = await fetch('/api/dashboard', {
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
       if (!res.ok) throw new Error('Failed to load dashboard')
       return res.json()
     },

@@ -12,5 +12,14 @@ export default async function handler(req, res) {
 
   if (error) return res.status(401).json({ error: error.message })
 
-  res.status(200).json({ message: 'Connexion réussie !' })
+  const access_token = data.session?.access_token
+  const user = data.user
+  if (!access_token || !user) return res.status(500).json({ error: 'Session invalide' })
+
+  // Renvoie le token pour que le client l’enregistre (localStorage)
+  res.status(200).json({
+    message: 'Connexion réussie !',
+    access_token,
+    user: { id: user.id, email: user.email },
+  })
 }
