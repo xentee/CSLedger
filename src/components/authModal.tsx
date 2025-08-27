@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseClient } from "../lib/supabaseClient";
 
 export default function Modal({
   type = "signin",
@@ -38,7 +38,8 @@ export default function Modal({
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({
+    const supabase = getSupabaseClient();
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -48,6 +49,8 @@ export default function Modal({
       setErrorMessage(error.message);
     } else {
       console.log("Connected!");
+      const token = data.session?.access_token
+      if (token) localStorage.setItem('sb_access_token', token)
       handleClose();
     }
   };
