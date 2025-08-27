@@ -123,14 +123,24 @@ export default function Modal({
                         className="space-y-4"
                         onSubmit={async (e) => {
                           e.preventDefault();
-                          const supabase = getSupabaseClient();
-                          const { data, error } = await supabase.auth.signUp({ email, password });
-                          if (error) {
-                            setErrorMessage(error.message);
-                          } else {
-                            const token = data.session?.access_token;
-                            if (token) localStorage.setItem('sb_access_token', token);
+                          setErrorMessage("");
+                          try {
+                            const res = await fetch('/api/register', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ email, password })
+                            });
+                            const data = await res.json();
+                            if (!res.ok) {
+                              setErrorMessage(data?.error || 'Inscription impossible');
+                              return;
+                            }
+                            if (data?.access_token) {
+                              localStorage.setItem('sb_access_token', data.access_token);
+                            }
                             handleClose();
+                          } catch (err: any) {
+                            setErrorMessage(err?.message || 'Erreur réseau');
                           }
                         }}
                       >
